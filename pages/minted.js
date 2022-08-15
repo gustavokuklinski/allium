@@ -10,8 +10,8 @@ import {
 } from '../config'
 
 
-import NFT from '../artifacts/contracts/BinkCollection.sol/BinkCollection.json'
-import Market from '../artifacts/contracts/BinkMarket.sol/BinkMarket.json'
+import NFT from '../artifacts/contracts/AlliumCollection.sol/AlliumCollection.json'
+import Market from '../artifacts/contracts/AlliumMarket.sol/AlliumMarket.json'
 
 export default function SingleNFT() {
   const [nfts, setNfts] = useState([])
@@ -59,7 +59,7 @@ export default function SingleNFT() {
   return (
     <>
 <div>
-<h2 className="text-4xl pb-5">Meus NFTs</h2>
+<h2 className="text-4xl pb-5">Meus DKMTs</h2>
 <div className="flex flex-col">
   <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
     <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">

@@ -3,7 +3,7 @@ import '../styles/globals.css'
 
 import Layout from '../components/Layout'
 
-function BinkAtelier({ Component, pageProps }) {
+function Allium({ Component, pageProps }) {
   
   return (
     <Layout>
@@ -15,4 +15,4 @@ function BinkAtelier({ Component, pageProps }) {
   )
 }
 
-export default BinkAtelier
+export default Allium

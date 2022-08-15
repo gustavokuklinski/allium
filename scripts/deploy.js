@@ -14,15 +14,15 @@ async function main() {
   await binkToken.deployed();
   console.log("token deployed to:", binkToken.address);
 
-  const BinkMarket = await hre.ethers.getContractFactory("BinkMarket");
-  const binkMarket = await BinkMarket.deploy(binkToken.address);
-  await binkMarket.deployed();
-  console.log("nftMarket deployed to:", binkMarket.address);
+  const AlliumMarket = await hre.ethers.getContractFactory("AlliumMarket");
+  const alliumMarket = await AlliumMarket.deploy(binkToken.address);
+  await alliumMarket.deployed();
+  console.log("Allium nftMarket deployed to:", alliumMarket.address);
 
-  const BinkNFT = await hre.ethers.getContractFactory("BinkCollection");
-  const binkNft = await BinkNFT.deploy(binkMarket.address);
-  await binkNft.deployed();
-  console.log("nft deployed to:", binkNft.address);
+  const AlliumNFT = await hre.ethers.getContractFactory("AlliumCollection");
+  const alliumNft = await AlliumNFT.deploy(alliumMarket.address);
+  await alliumNft.deployed();
+  console.log("Allium nft deployed to:", alliumNft.address);
 }
 
 

@@ -1,5 +1,6 @@
 {
-  "name": "bink-atelier",
+  "name": "allium-nft",
+  "description": "Allium NFT Marketplace using ART$ Token",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -18,6 +19,7 @@
     "@openzeppelin/contracts": "^4.5.0",
     "axios": "^0.21.1",
     "chai": "^4.3.4",
+    "dotenv": "^16.0.1",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.3.1",
     "hardhat": "^2.8.4",

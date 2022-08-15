@@ -8,13 +8,13 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "hardhat/console.sol";
 
-contract BinkCollection is ERC721URIStorage {
+contract AlliumCollection is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
     address contractAddress;
 
-    constructor(address marketplaceAddress) ERC721("Bink DKMTs", "DKMT") {
+    constructor(address marketplaceAddress) ERC721("Allium DKMTs", "DKMT") {
         contractAddress = marketplaceAddress;
     }
 

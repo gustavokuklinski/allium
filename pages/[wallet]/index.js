@@ -10,8 +10,8 @@ import {
 } from '../../config'
 
 
-import NFT from '../../artifacts/contracts/BinkCollection.sol/BinkCollection.json'
-import Market from '../../artifacts/contracts/BinkMarket.sol/BinkMarket.json'
+import NFT from '../../artifacts/contracts/AlliumCollection.sol/AlliumCollection.json'
+import Market from '../../artifacts/contracts/AlliumMarket.sol/AlliumMarket.json'
 
 export default function SingleNFT() {
   const [nfts, setNfts] = useState([])

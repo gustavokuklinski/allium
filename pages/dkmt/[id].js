@@ -12,8 +12,8 @@ import {
 
 
 
-import NFT from '../../artifacts/contracts/BinkCollection.sol/BinkCollection.json'
-import Market from '../../artifacts/contracts/BinkMarket.sol/BinkMarket.json'
+import NFT from '../../artifacts/contracts/AlliumCollection.sol/AlliumCollection.json'
+import Market from '../../artifacts/contracts/AlliumMarket.sol/AlliumMarket.json'
 import Token from '../../artifacts/contracts/BinkToken.sol/BinkToken.json'
 
 export default function SingleNFT() {
@@ -40,6 +40,7 @@ export default function SingleNFT() {
       console.log(tokenUri);
       const meta = await axios.get(tokenUri)
       let price = web3.utils.fromWei(i.price.toString(), 'ether');
+      let comission = web3.utils.fromWei(i.comission.toString(), 'ether');
       let item = {
         name: meta.data.name,
         description: meta.data.description,
@@ -47,12 +48,10 @@ export default function SingleNFT() {
         tokenId: i.tokenId.toNumber(),
         seller: i.seller,
         creator: i.creator,
-        width: meta.data.width,
-        height: meta.data.height,
         owner: i.owner,
         image: meta.data.image,
         origin: meta.data.origin,
-        comission: meta.data.comission,
+        comission,
         contract: i.nftContract
       }
       return item
@@ -61,26 +60,20 @@ export default function SingleNFT() {
     console.log('items: ', items)
 
     setNfts(items)
-    setLoaded('loaded') 
+    setLoaded('loaded')
   }
 
 
   async function buyNft(nft) {
-    if (typeof window !== "undefined") {
-      transactionModal = document.getElementById("transactionModal");
-      createDkmtToken = document.getElementById("createDkmtToken");
-      createDkmtSale = document.getElementById("createDkmtSale");
-    }
 
     const web3Modal = new Web3Modal({
       network: "mainnet",
       cacheProvider: true,
     });
+
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
-
-    transactionModal.style.display = "block";
 
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     
@@ -89,65 +82,44 @@ export default function SingleNFT() {
     const price = web3.utils.toWei(nft.price.toString(), 'ether');
     console.log('price: ', price);
 
-    createDkmtToken.style.display = "block";
-    const erc20transfertransaction = await erc20contract.transferFrom(signer.getAddress(), nft.creator, price)
-    console.log("Transaction ART$: ", erc20transfertransaction);
-    
-    createDkmtSale.style.display = "block";
+    const erc20approvetransaction = await erc20contract.approve(nftmarketaddress, price);
+    console.log("Approve: ", nftmarketaddress);
+    await erc20approvetransaction.wait();
+
     const transaction = await contract.createMarketSale(nftaddress, nft.tokenId, {value: 0})
     console.log("Transaction NFT: ", transaction);
 
-    
-    await erc20transfertransaction.wait()
     await transaction.wait()
 
-    transactionModal.style.display = "none";
     location.replace("/collection")
 
   }
 
   async function secondaryBuyNft(nft) {
-    if (typeof window !== "undefined") {
-      transactionModal = document.getElementById("transactionModal");
-      createDkmtSecondaryArtist = document.getElementById("createDkmtSecondaryArtist");
-      createDkmtSecondaryToken = document.getElementById("createDkmtSecondaryToken");
-      createDkmtSecondarySale = document.getElementById("createDkmtSecondarySale");
-    }
 
     const web3Modal = new Web3Modal({
       network: "mainnet",
       cacheProvider: true,
     });
+
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
 
-    transactionModal.style.display = "block";
-
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+    
     const erc20contract = new ethers.Contract(nfttokenaddress, Token.abi, signer)
 
     const price = web3.utils.toWei(nft.price.toString(), 'ether');
     console.log('price: ', price);
 
-    createDkmtSecondaryArtist.style.display = "block";
-    const creatorPercentage = (price * nft.comission) / 100;
-    console.log('creator percentage: ', creatorPercentage);
-    const erc20transfertransactionCreator = await erc20contract.transferFrom(signer.getAddress(), nft.creator, creatorPercentage.toLocaleString('fullwide', {useGrouping:false}).toString());
-    
+    const erc20approvetransaction = await erc20contract.approve(nftmarketaddress, price);
+    console.log("Approve: ", nftmarketaddress);
+    await erc20approvetransaction.wait();
 
-    createDkmtSecondaryToken.style.display = "block";
-    const priceSellerCalc = (price - creatorPercentage);
-    console.log('seller liquid', priceSellerCalc);
-    const erc20transfertransactionSeller = await erc20contract.transferFrom(signer.getAddress(), nft.seller, priceSellerCalc.toLocaleString('fullwide', {useGrouping:false}).toString())
-    
-    
-    createDkmtSecondarySale.style.display = "block";
-    const transaction = await contract.createMarketSale(nftaddress, nft.tokenId, {value: 0})
-    
+    const transaction = await contract.secondaryCreateMarketSale(nftaddress, nft.tokenId, {value: 0})
+    console.log("Transaction NFT: ", transaction);
 
-    await erc20transfertransactionCreator.wait()
-    await erc20transfertransactionSeller.wait()
     await transaction.wait()
 
     location.replace("/collection")
@@ -158,35 +130,7 @@ export default function SingleNFT() {
   return (
 
     <>
-    <div className="fixed z-10 inset-0 overflow-y-auto" id="transactionModal" aria-labelledby="modal-title" role="dialog" aria-modal="true" style={{ display:"none" }}>
-      <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div className="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div className="sm:flex sm:items-start">
-              
-              <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">Transações em andamento...</h3>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">Confirme as transações na sua carteira Metamask.<br /></p><br />
 
-                  <p className="text-sm text-gray-500" id="createDkmtToken" style={{ display:"none" }}>1/2 - Transferindo ART$</p>
-                  <p className="text-sm text-gray-500" id="createDkmtSale" style={{ display:"none" }}>2/2 - Transferindo DKMT</p>
-
-                  <p className="text-sm text-gray-500" id="createDkmtSecondaryArtist" style={{ display:"none" }}>1/3 - Transferindo comissão ao artista</p>
-                  <p className="text-sm text-gray-500" id="createDkmtSecondaryToken" style={{ display:"none" }}>2/3 - Transferindo ART$</p>
-                  <p className="text-sm text-gray-500" id="createDkmtSecondarySale" style={{ display:"none" }}>3/3 - Transferindo DKMT</p>
-                  
-                  <br />
-                  <p className="text-sm text-gray-500" id="createDkmtSale">* caso alguma operação demore ou fique pendente recomendamos que aguarde.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 <div>
   <div className="md:grid md:grid-cols-3 md:gap-6">
 
@@ -210,9 +154,6 @@ export default function SingleNFT() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700"> {nft.description} </label>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Dimensões: {nft.width} x {nft.height} px</label>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 truncate">Artista:<br />

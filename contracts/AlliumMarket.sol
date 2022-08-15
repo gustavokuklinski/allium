@@ -4,24 +4,14 @@ pragma solidity ^0.8.3;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "./BinkCollection.sol";
+import "./AlliumCollection.sol";
 
 import "hardhat/console.sol";
 
-interface ERC20 {
-    function totalSupply() external view returns (uint);
-    function balanceOf(address tokenOwner) external view returns (uint balance);
-    function allowance(address tokenOwner, address spender) external view returns (uint remaining);
-    function transfer(address to, uint tokens) external returns (bool success);
-    function approve(address spender, uint tokens) external returns (bool success);
-    function transferFrom(address from, address to, uint tokens) external returns (bool success);
-    event Transfer(address indexed from, address indexed to, uint tokens);
-    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
-}
-
-contract BinkMarket is ReentrancyGuard {
+contract AlliumMarket is ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _itemsIds;
     Counters.Counter private _itemsSold;
@@ -33,22 +23,17 @@ contract BinkMarket is ReentrancyGuard {
     // owner of the marketplace
     address payable owner;
 
-    address token20Contract;
-
+    IERC20 public _token20Contract;
     constructor(address token20Address) {
-        token20Contract = token20Address;
-
-        //set the owner of the contract to the one that deployed it
+        _token20Contract = IERC20(token20Address);
         owner = payable(msg.sender);
-        
     }
-    /* Updates the listing price of the contract */
+
     function updateListingPrice(uint _listingPrice) public payable {
       require(owner == msg.sender, "Only marketplace owner can update listing price.");
       listingPrice = _listingPrice;
     }
 
-    /* Returns the listing price of the contract */
     function getListingPrice() public view returns (uint256) {
        return listingPrice;
     }
@@ -61,6 +46,7 @@ contract BinkMarket is ReentrancyGuard {
         address payable seller;
         address payable owner;
         uint256 price;
+        uint256 comission;
         bool sold;
     }
 
@@ -73,10 +59,9 @@ contract BinkMarket is ReentrancyGuard {
         address creator,
         address seller,
         address owner,
-        uint256 price
+        uint256 price,
+        uint256 comission
     );
-
-    
 
     event ProductUpdated(
       uint256 indexed itemId,
@@ -93,7 +78,8 @@ contract BinkMarket is ReentrancyGuard {
         address creator,
         address seller,
         address owner,
-        uint256 price
+        uint256 price,
+        uint256 comission
     );
 
      event ProductListed(
@@ -127,18 +113,15 @@ contract BinkMarket is ReentrancyGuard {
         _;
     }
 
-    /*
-    function getListingPrice() public view returns (uint256) {
-      return listingPrice;
-    }*/
 
     function createMarketItem(
         address nftContract,
         uint256 tokenId,
-        uint256 price
+        uint256 price,
+        uint256 comission
     ) public payable nonReentrant {
         require(price > 0, "Price must be at least 1 wei");
-        // obligates the seller to pay the listing price
+
         require(msg.value == listingPrice, "Listing fee required");
 
         _itemsIds.increment();
@@ -152,12 +135,12 @@ contract BinkMarket is ReentrancyGuard {
             payable(msg.sender),
             payable(address(0)),
             price,
+            comission,
             false
         );
 
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
         
-
         emit MarketItemCreated(
             itemId,
             nftContract,
@@ -165,7 +148,8 @@ contract BinkMarket is ReentrancyGuard {
             msg.sender,
             msg.sender,
             address(0),
-            price
+            price,
+            comission
         );
     }
 
@@ -181,27 +165,22 @@ contract BinkMarket is ReentrancyGuard {
         emit ProductUpdated(id, oldPrice, newPrice);
     } 
 
+    // Primary market
     function createMarketSale(address nftContract, uint256 itemId)
         public
         payable
         nonReentrant
     {
-        // uint256 price = idToMarketItem[itemId].price;
+        uint256 price = idToMarketItem[itemId].price;
         uint256 tokenId = idToMarketItem[itemId].tokenId;
 
-        // require(msg.value == price, "Please submit the asking price in order to complete the purchase");
-        ERC20(token20Contract).allowance(msg.sender, address(this));
-        ERC20(token20Contract).balanceOf(msg.sender);
-        
         idToMarketItem[itemId].seller.transfer(msg.value);
+        _token20Contract.transferFrom(msg.sender, address(idToMarketItem[itemId].seller), price);
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
+        
         idToMarketItem[itemId].owner = payable(msg.sender);
         idToMarketItem[itemId].sold = true;
         _itemsSold.increment();
-
-        //regards the marketplace with the listingPrice
-        //payable(owner).transfer(listingPrice);
-        
 
         emit ProductSold(
             idToMarketItem[itemId].itemId,
@@ -210,7 +189,45 @@ contract BinkMarket is ReentrancyGuard {
             idToMarketItem[itemId].creator,
             idToMarketItem[itemId].seller,
             payable(msg.sender),
-            idToMarketItem[itemId].price
+            idToMarketItem[itemId].price,
+            idToMarketItem[itemId].comission
+        );
+    }
+
+    // Secondary market
+    function royaltiesCreator(uint256 p, uint256 c) pure public returns (uint256) {
+        unchecked { return (p * c)/100; }
+    }
+
+    function secondaryCreateMarketSale(address nftContract, uint256 itemId)
+        public
+        payable
+        nonReentrant
+    {
+        uint256 price = idToMarketItem[itemId].price;
+        uint256 tokenId = idToMarketItem[itemId].tokenId;
+        uint256 comission = idToMarketItem[itemId].comission;
+
+        idToMarketItem[itemId].seller.transfer(msg.value);
+        
+        _token20Contract.transferFrom(msg.sender, address(idToMarketItem[itemId].seller), (price - royaltiesCreator(price, comission)));
+        _token20Contract.transferFrom(msg.sender, address(idToMarketItem[itemId].creator), royaltiesCreator(price, comission));
+
+        IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
+        
+        idToMarketItem[itemId].owner = payable(msg.sender);
+        idToMarketItem[itemId].sold = true;
+        _itemsSold.increment();
+
+        emit ProductSold(
+            idToMarketItem[itemId].itemId,
+            idToMarketItem[itemId].nftContract,
+            idToMarketItem[itemId].tokenId,
+            idToMarketItem[itemId].creator,
+            idToMarketItem[itemId].seller,
+            payable(msg.sender),
+            idToMarketItem[itemId].price,
+            idToMarketItem[itemId].comission
         );
     }
 
@@ -224,7 +241,7 @@ contract BinkMarket is ReentrancyGuard {
         require(newPrice > 0, "Price must be at least 1 wei");
         require(msg.value == listingPrice, "Price must be equal to listing price");
 
-        BinkCollection tokenContract = BinkCollection(nftContract);
+        AlliumCollection tokenContract = AlliumCollection(nftContract);
 
         tokenContract.transferToken(msg.sender, address(this), tokenId);
         

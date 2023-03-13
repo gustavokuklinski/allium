@@ -54,17 +54,17 @@ export default function Home() {
       <div className="grid grid-flow-col grid-cols-2 grid-rows-1 gap-4 p-5">
         <div>
           <h1 className="text-4xl font font-extrabold tracking-tight text-gray-800 sm:text-6xl">
-            Descubra, Colecione e Publique <span className="text-blue-700">DKMTs</span> 
+            Publique e tokenize suas obras de <span className="text-blue-700">Arte</span> em <span className="text-blue-700">NFT</span>
           </h1>
           <p className="mt-4 mb-4 text-xl text-gray-500">
             <strong>Allium</strong> é o Marketplace do cripto token <strong>ART$</strong><br /><span className='text-xs'>na rede <strong>Polygon/MATIC</strong></span> 
           </p>
-          <a
-            href="/explorar"
+          <Link
+            href="/explore"
             className="inline-block text-center bg-black border border-transparent rounded-md py-3 px-8 font-medium text-white hover:bg-black"
           >
               Explorar!
-            </a>
+            </Link>
         </div>
         <div></div>
       </div>
@@ -79,26 +79,28 @@ export default function Home() {
       <div className="min-w-full">
       <div className="grid grid-flow-col grid-cols-2 grid-rows-1 gap-4 p-5">
         <div>
-          <h1 className="text-4xl font font-extrabold tracking-tight text-gray-800 sm:text-6xl">
-            Descubra, Colecione e Publique <span className="text-blue-700">DKMTs</span> 
+         <h1 className="text-4xl font font-extrabold tracking-tight text-gray-800 sm:text-6xl">
+            Publique e tokenize suas obras de <span className="text-blue-700">Arte</span> em <span className="text-blue-700">NFT</span>
           </h1>
           <p className="mt-4 mb-4 text-xl text-gray-500">
             <strong>Allium</strong> é o Marketplace do cripto token <strong>ART$</strong><br /><span className='text-xs'>na rede <strong>Polygon/MATIC</strong></span> 
           </p>
-          <a
-            href="/explorar"
+          <Link
+            href="/explore"
             className="inline-block text-center bg-black border border-transparent rounded-md py-3 px-8 font-medium text-white hover:bg-black"
           >
               Explorar!
-            </a>
+            </Link>
         </div>
-        <div>9</div>
+        <div></div>
       </div>
 
-    <div>
-      <h2 className="text-4xl tracking-tight font-extrabold text-black sm:text-5xl md:text-6xl">DKMTs</h2>
-    </div>
-    <div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+    
+
+    <div className="max-w-7xl mx-auto py-6 sm:px-3 lg:px-8 lg:flex lg:items-center">
+      
+          <div className="mt-6 grid grid-cols-1 gap-y-20 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+
       {
         nfts.map((nft, i) => 
         {
@@ -107,7 +109,8 @@ export default function Home() {
           
           <div key={i} className="group relative">
           <div className="w-full min-h-60 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-60 lg:aspect-none">                  
-          <Link href={{ pathname: '/dkmt/[id]', query: {id: nft.tokenId }}}>
+          
+            <Link href={{ pathname: '/nft/[id]', query: {id: nft.tokenId }}}>
               <img
                 src={nft.image} 
                 alt={nft.name}
@@ -119,7 +122,7 @@ export default function Home() {
             <div className="mt-4 flex justify-between">
               <div>
                 <h3 className="text-sm text-gray-700">
-                  <Link href={{ pathname: '/dkmt/[id]', query: {id: nft.tokenId }}}>
+                  <Link href={{ pathname: '/nft/[id]', query: {id: nft.tokenId }}}>
                     
                     {nft.name}
                   </Link>
@@ -136,6 +139,7 @@ export default function Home() {
         })
       }
     </div>
+        </div>
         
       </div>
       

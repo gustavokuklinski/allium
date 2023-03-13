@@ -71,7 +71,7 @@ export default function Footer() {
 
     <div className="bg-blue-50 p-16">
     <h1 className='block text-5xl text-center font-bold py-12 sm:px-6 lg:px-8'>Guia rápido</h1>
-    <p className='text-center'>Pequenos guias preparados de A à Z sobre como ingressar nos NFTs!</p>
+    <p className='text-center'>Pequenos guias preparados de A à Z sobre como ingressar nos NFTs<br />pelo Formas ArtHub!</p>
       <div className="max-w-7xl mx-auto py-6 sm:px-3 lg:px-8 lg:flex lg:items-center lg:justify-between">
       <div className="mt-6 grid grid-cols-1 gap-y-20 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
         <div className="group relative">
@@ -163,19 +163,8 @@ export default function Footer() {
               </h3>
               <p className="mt-1 text-sm text-white">O que são DKMTs?</p>
               <p className="mt-1 text-sm text-white">Documentação</p>
-            </div>
-          </div>
-        </div>
-        <div  className="group relative">
-          
-          <div className="mt-4 flex justify-between">
-            <div>
-              <h3 className="text-lg text-white">
-                Token ART$
-              </h3>
-              <p className="mt-1 text-sm text-white"><a href='https://quickswap.exchange/#/swap?inputCurrency=0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270&outputCurrency=0xa267622987b75e1d37ffb8134a1f9ee3435fbb28' target="_blank">Comprar/Vender (Trade)</a></p>
-              <p className="mt-1 text-sm text-white"><a href='https://bink.art.br' target="_blank">Bink Tech</a></p>
-              <p className="mt-1 text-sm text-white"><a href='https://bink.art.br' target="_blank">Whitepaper</a></p>
+              <p className="mt-1 text-sm text-white"><a href='' target="_blank">Github</a></p>
+
             </div>
           </div>
         </div>
@@ -189,11 +178,30 @@ export default function Footer() {
               </h3>
               <p className="mt-1 text-sm text-white">Login com a Metamask</p>
               <p className="mt-1 text-sm text-white">Token ART$</p><br />
-              <h3 className="text-sm text-white">Para o colecionador</h3>
+            </div>
+          </div>
+        </div>
+        <div  className="group relative">
+          
+          <div className="mt-4 flex justify-between">
+            <div>
+              <h3 className="text-lg text-white">
+                Para o artista
+              </h3>
+              
+              <p className="mt-1 text-sm text-white">Criar DKMT</p>
+            </div>
+          </div>
+        </div>
+        <div  className="group relative">
+          
+          <div className="mt-4 flex justify-between">
+            <div>
+              <h3 className="text-lg text-white">
+                Para o colecionador
+              </h3>
               <p className="mt-1 text-sm text-white">Adquirir DKMT</p>
               <p className="mt-1 text-sm text-white">Royalties</p><br />
-              <h3 className="text-sm text-white">Para o artista</h3>
-              <p className="mt-1 text-sm text-white">Criar DKMT</p>
             </div>
           </div>
         </div>
@@ -210,18 +218,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div  className="group relative">
-          
-          <div className="mt-4 flex justify-between">
-            <div>
-              <h3 className="text-lg text-white">
-                Contato
-              </h3>
-              <p className="mt-1 text-sm text-white"><a href='' target="_blank">Github</a></p>
-              
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
     </div>

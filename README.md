@@ -1,11 +1,10 @@
 # Allium NFT
-Projeto de Marketplace NFT em Polygon (MATIC) e/ou com Token ART$.
+Projeto de Marketplace NFT em Token ART$ com taxas de rede em em cripto-base (ethereum, matic, etc..).
 
 Requesitos mínimos:
 
 Node
 ```
-NVM - https://github.com/nvm-sh/nvm
 NPM 8.5.0
 NODEJS 16.14.1
 ```
@@ -53,7 +52,7 @@ npm run hardhatdeploy
 ```
 
 3. Incia servidor local
-Utilizando NextJS 11.x com acesso via: localhost: ```localhost:30000```
+Utilizando NextJS 11.x com acesso via: localhost: ```localhost:3000```
 ```
 npm run dev
 ```

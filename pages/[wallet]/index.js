@@ -102,13 +102,13 @@ export default function SingleNFT() {
                 </div>
               </div>
               <a
-                href="/dkmt"
+                href="/nft"
                 className="inline-block text-center bg-black border border-transparent rounded-md py-3 px-8 font-medium text-white hover:bg-black"
               >
-                DKMTs
+                nfts
               </a> 
               <a
-                href="/dkmt"
+                href="/nft"
                 className="inline-block text-center bg-black border border-transparent rounded-md py-3 px-8 font-medium text-white hover:bg-black"
               >
                 Coleção
@@ -128,7 +128,7 @@ export default function SingleNFT() {
               <>
               <div key={i} className="group relative">
               <div className="w-full min-h-60 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-60 lg:aspect-none">                  
-                <Link href={{ pathname: '/dkmt/[id]', query: {id: nft.tokenId }}}>
+                <Link href={{ pathname: '/nft/[id]', query: {id: nft.tokenId }}}>
                   <img
                     src={nft.image} 
                     alt={nft.name}
@@ -140,7 +140,7 @@ export default function SingleNFT() {
                 <div className="mt-4 flex justify-between">
                   <div>
                     <h3 className="text-sm text-gray-700">
-                      <Link href={{ pathname: '/dkmt/[id]', query: {id: nft.tokenId }}}>
+                      <Link href={{ pathname: '/nft/[id]', query: {id: nft.tokenId }}}>
                         
                         {nft.name}
                       </Link>

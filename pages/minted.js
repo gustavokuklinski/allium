@@ -59,7 +59,7 @@ export default function SingleNFT() {
   return (
     <>
 <div>
-<h2 className="text-4xl pb-5">Meus DKMTs</h2>
+<h2 className="text-4xl pb-5">Meus nfts</h2>
 <div className="flex flex-col">
   <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
     <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -102,7 +102,7 @@ export default function SingleNFT() {
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
               
-              <Link href={{ pathname: '/dkmt/[id]', query: { id: nft.tokenId }}} className="text-indigo-600 hover:text-indigo-900">
+              <Link href={{ pathname: '/nft/[id]', query: { id: nft.tokenId }}} className="text-indigo-600 hover:text-indigo-900">
                 Ver NFT
               </Link>
               </td>

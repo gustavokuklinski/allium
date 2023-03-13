@@ -199,6 +199,9 @@ contract AlliumMarket is ReentrancyGuard {
         unchecked { return (p * c)/100; }
     }
 
+
+
+
     function secondaryCreateMarketSale(address nftContract, uint256 itemId)
         public
         payable
@@ -330,5 +333,4 @@ contract AlliumMarket is ReentrancyGuard {
         return items;
     }
 
-    
 }

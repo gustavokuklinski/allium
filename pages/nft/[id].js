@@ -27,7 +27,6 @@ export default function SingleNFT() {
     loadNFTs()
   }, [])
 
-
   async function loadNFTs() {
     const provider = new ethers.providers.JsonRpcProvider()
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
@@ -39,6 +38,7 @@ export default function SingleNFT() {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
       console.log(tokenUri);
       const meta = await axios.get(tokenUri)
+
       let price = web3.utils.fromWei(i.price.toString(), 'ether');
       let comission = web3.utils.fromWei(i.comission.toString(), 'ether');
       let item = {
@@ -52,11 +52,19 @@ export default function SingleNFT() {
         image: meta.data.image,
         origin: meta.data.origin,
         comission,
-        contract: i.nftContract
+        contract: i.nftContract,
       }
-      return item
+
+       return item
+      //console.log(transferEvent)
     }))
   
+     
+    
+  
+    
+
+
     console.log('items: ', items)
 
     setNfts(items)
@@ -164,16 +172,20 @@ export default function SingleNFT() {
           <div>
             <label className="block text-sm font-medium text-gray-700"> { (nft.seller == nft.creator) ? ("Mercado primário") : (`Marchand: ${nft.seller}`) } </label>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700"> Contrato Inteligente {nft.contract} </label>
+          </div>
         </div>
         <div className="px-4 py-3 sm:px-6">
           { (nft.seller == nft.creator) ? (
-            <button onClick={() => buyNft(nft)} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">Comprar DKMT</button>
+            <button onClick={() => buyNft(nft)} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">Comprar nft</button>
           ) : (
-            <button onClick={() => secondaryBuyNft(nft)} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">Comprar DKMT</button>
+            <button onClick={() => secondaryBuyNft(nft)} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">Comprar nft</button>
           ) }
         </div>
       </div>
     </div>
+
     </>
     )
       } else {}

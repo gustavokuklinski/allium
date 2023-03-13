@@ -3,11 +3,15 @@ import { ethers } from 'ethers'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 import Web3Modal from 'web3modal'
 import web3 from 'web3'
+import Router from 'next/router'
 
-const projectId = "2D8uGC1CwdTYG7Y6DzkrHW2gSFY"
-const projectSecret = "8556621639deab347e22fb1e345fb167"
-const devEndpointIPFS = "https://allium-dkmt-dev.infura-ipfs.io/ipfs/"
-const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64')
+
+
+console.log()
+const projectId = process.env.NEXT_PUBLIC_INFURA_PROJECT_KEY
+const projectSecret = process.env.NEXT_PUBLIC_INFURA_PRIVATE_KEY
+const devEndpointIPFS = process.env.NEXT_PUBLIC_INFURA_ENDPOINT
+const auth = 'Basic '+Buffer.from(projectId+':'+projectSecret).toString('base64')
 
 const client = ipfsHttpClient({
   host: 'ipfs.infura.io',
@@ -18,6 +22,7 @@ const client = ipfsHttpClient({
   },
 })
 
+
 import {
   nftaddress, nftmarketaddress
 } from '../config'
@@ -27,7 +32,7 @@ import Market from '../artifacts/contracts/AlliumMarket.sol/AlliumMarket.json'
 
 export default function Mint() {
   const [fileUrl, setFileUrl] = useState(null)
-  const [formInput, updateFormInput] = useState({ price: '', name: '', description: '', comission: '' })
+  const [formInput, updateFormInput] = useState({ price: '', name: '', description: '', comission: '', categorie: '' })
   
 
   async function createSale(url) {
@@ -57,7 +62,7 @@ export default function Mint() {
 
     await transaction.wait()
 
-    location.replace("/")
+    Router.push('/')
   }
 
   async function onChange(e) {
@@ -67,7 +72,7 @@ export default function Mint() {
         file,
         { progress: (prog) => console.log(`received: ${prog}`) }
       )
-      const url = `${devEndpointIPFS}+${added.path}`
+      const url = `${devEndpointIPFS}${added.path}`
       setFileUrl(url)
 
     } catch (error) {
@@ -85,8 +90,8 @@ export default function Mint() {
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
     const wallet = await signer.getAddress()
-    const { name, description, price, comission } = formInput
-    if (!name || !description || !price || !fileUrl || !comission) return
+    const { name, description, price, comission, categorie } = formInput
+    if (!name || !description || !price || !fileUrl || !comission || !categorie) return
     // first, upload to IPFS
     const data = JSON.stringify({
       name: name, 
@@ -94,11 +99,12 @@ export default function Mint() {
       image: fileUrl, 
       origin: wallet, 
       price: price,
-      comission: comission 
+      comission: comission, 
+      categorie: categorie
     })
     try {
       const added = await client.add(data)
-      const url = `${devEndpointIPFS}+${added.path}`
+      const url = `${devEndpointIPFS}${added.path}`
       console.log(url);
       
       createSale(url)
@@ -112,10 +118,19 @@ export default function Mint() {
      <div>
       <div className="md:grid md:grid-cols-3 md:gap-6">
         <div className="mt-5 md:mt-0 md:col-span-2">
-          <h1 className="px-4 py-5 text-lg leading-6 text-gray-900">Criar DKMT</h1>
-            <p className="px-4 text-sm text-gray-600">DKMTs são os NFTs do Allium Marketplace!</p>
+          <h1 className="px-4 py-5 text-lg leading-6 text-gray-900">Criar nft</h1>
+            <p className="px-4 text-sm text-gray-600">nfts são os NFTs do Allium Marketplace!</p>
             <div className="sm:rounded-md sm:overflow-hidden">
               <div className="px-4 py-5 bg-white space-y-6">
+                <div className="col-span-6 sm:col-span-3">
+                  <label htmlFor="categorie" className="block text-sm font-medium text-gray-700">Categoria</label>
+                  <select className="p-2 shadow-sm focus:ring-black focus:border-black mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" id="categorie" onChange={e => updateFormInput({ ...formInput, categorie: e.target.value })}>
+                    <option value="PT">Pintura</option>
+                    <option value="EO">Esculturas e Objetos</option>
+                    <option value="FT">Fotografias</option>
+                    <option value="DG">Digitais</option>
+                  </select>
+                </div>
                 <div className="col-span-6 sm:col-span-3">
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700">Título</label>
                   <input type="text" name="name" id="name" autoComplete="given-name" className="p-2 shadow-sm focus:ring-black focus:border-black mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" onChange={e => updateFormInput({ ...formInput, name: e.target.value })}/>
@@ -155,14 +170,14 @@ export default function Mint() {
                 
               </div>
               <div className="px-4 py-3 sm:px-6">
-                <button onClick={createMarket} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-blue-700">Publicar DKMT!</button>
+                <button onClick={createMarket} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-blue-700">Publicar nft!</button>
                 <p className="text-xs text-gray-500 pt-2">Custo médio de publicação: ~0.050 + 0.0001 MATIC de taxa de publicação</p>
               </div>
             </div>
         </div>
         <div className="md:col-span-1">
           <div className="px-4 sm:px-0">
-            <label><small>Prévia do DKMT:</small></label>
+            <label><small>Prévia do nft:</small></label>
             {
               fileUrl && (
                 <img className="rounded mt-4" src={fileUrl} />

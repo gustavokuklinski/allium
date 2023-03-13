@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { ethers } from 'ethers'
 import Web3Modal from "web3modal"
-import { Fragment } from 'react'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
+import { Disclosure, Menu } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 
 import {
   nfttokenaddress,
+  networkMap,
   nftmarketaddress
 } from '../config'
 
@@ -14,44 +14,87 @@ import Token from '../artifacts/contracts/BinkToken.sol/BinkToken.json'
 
 const navigation = [
   { name: 'Home', href: '/', current: false },
-  { name: 'Explorar', href: '/explorar', current: false },
-  { name: 'DKMTs', href: '/dkmt', current: false },
+  { name: 'Explorar', href: '/explore', current: false },
   { name: 'Documentação', href: '#', current: false },
 ]
+
+
 
 export default function Navbar() {
     
     function classNames(...classes) {
       return classes.filter(Boolean).join(' ')
     }
-    
+
     async function MetamaskLogin() {
+
       const web3Modal = new Web3Modal({
         network: "mainnet",
         cacheProvider: true,
+        providerOptions
       });
+
       const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
+      const provider = new ethers.providers.Web3Provider(connection, 'any')
       const signer = provider.getSigner()
-  
+
+      
+
       const wallet = await signer.getAddress()
       const btnId = document.getElementById("metamasklogin")
       const addDkmt = document.getElementById("addDkmt")
+      const settingsDkmt = document.getElementById("settingsDkmt")
       const balance = document.getElementById("balance")
+  
+      // const chainId = networkMap.POLYGON_MAINNET.chainId
+      // const chainId = networkMap.POLYGON_TESTNET.chainId
+      const chainId = networkMap.LOCALHOST_HARDHAT.chainId
+      try {
+        await ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{chainId:chainId}]
+        });
 
-      console.log("Wallet logged in: ", wallet)
-    
-      const erc20contract = new ethers.Contract(nfttokenaddress, Token.abi, signer)
 
-      const erc20balanceOf = await erc20contract.balanceOf(wallet)
-      const erc20formatedBalance = ethers.utils.formatEther(erc20balanceOf);
-      console.log(erc20formatedBalance)
-      // btnId.innerHTML = wallet.substring(0,8)
-      btnId.innerHTML = wallet.substring(0,8)
+      } catch (switchError) {
+        if(switchError.code === 4902) {
+            await ethereum.request({
+              method: "wallet_addEthereumChain",
+              // params: [networkMap.POLYGON_MAINNET],
+              // params: [networkMap.POLYGON_TESTNET],
+              params: [networkMap.LOCALHOST_HARDHAT]
+            });
+        }
+      } 
       
-      balance.innerHTML = "<img src='/art-symbol-32x32.png' style='display: inline; width: 1.4em; height: 1.4em' alt='Token ART$' /> <strong>ART$ </strong>" + erc20formatedBalance     
-      addDkmt.classList.remove("hidden");
-      return wallet
+      userLoggedIn()
+     
+      async function userLoggedIn() {
+        console.log("Wallet logged in: ", wallet)
+      
+        
+
+        const blockchainBalance = await provider.getBalance(wallet);
+        const blockchainFormatBalance = ethers.utils.formatEther(blockchainBalance)
+        console.log(blockchainFormatBalance);
+
+
+        const erc20contract = new ethers.Contract(nfttokenaddress, Token.abi, signer)
+        console.log(erc20contract)
+        const erc20balanceOf = await erc20contract.balanceOf(wallet)
+        const erc20formatedBalance = ethers.utils.formatEther(erc20balanceOf);
+        console.log(erc20formatedBalance)
+
+        
+        
+        // btnId.innerHTML = wallet.substring(0,8)
+        btnId.innerHTML = wallet.substring(0,9)
+        
+        balance.innerHTML = "<img src='/art-symbol-32x32.png' style='display: inline; width: 1.4em; height: 1.4em' alt='Token ART$' /> " + erc20formatedBalance.substring(0,6) + " | <img src='/matic-symbol-32x32.png' style='display: inline; width: 1.4em; height: 1.4em' alt='MATIC' /> " + blockchainFormatBalance.substring(0,6);
+        addDkmt.classList.remove("hidden");
+        settingsDkmt.classList.remove("hidden");
+        return wallet
+      }
   };
 
     return (
@@ -89,17 +132,17 @@ export default function Navbar() {
                 <div className="hidden sm:block sm:ml-6">
                   <div className="flex space-x-4">
                     {navigation.map((item) => (
-                      <a
-                        key={item.name}
-                        href={item.href}
-                        className={classNames(
-                          item.current ? 'text-gray-900' : 'text-gray-900 hover:bg-blue-700 hover:text-white',
-                          'px-3 py-2 rounded-md text-sm font-medium'
-                        )}
+                      <div key={item.name} className={classNames(
+                        item.current ? 'text-gray-900' : 'text-gray-900 hover:bg-blue-700 hover:text-white',
+                        'px-3 py-2 rounded-md text-sm font-medium'
+                      )}>
+                      <Link
+                        href={item.href}                        
                         aria-current={item.current ? 'page' : undefined}
                       >
                         {item.name}
-                      </a>
+                      </Link>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -107,13 +150,22 @@ export default function Navbar() {
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
               <div className="ml-3 pr-3 text-right">
                 <div className="text-sm font-medium leading-none text-black">
-                  <span id="metamasklogin"></span>...
+                  <span id="metamasklogin"></span>
                 </div>
                 <div className="text-sm text-right font-medium leading-none text-black">
                   <span id="balance"></span>
                 </div>
               </div>
-              <a href="/mint" id="addDkmt" className="hidden inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-700 mx-5">+ Criar DKMT</a>
+
+              <div id="addDkmt" className="hidden">
+                <Link href="/mint" >
+                <img
+                        className="h-8 w-8 rounded-full"
+                        src="/adddkmt.png"
+                        alt=""
+                      />
+                </Link>
+              </div>
 
               <a id="metamasklogin"></a>
                 <img
@@ -122,6 +174,8 @@ export default function Navbar() {
                   src="/wallet.png"
                   alt=""
                 />
+
+                <div id="settingsDkmt" className="hidden">
                 {/* Profile dropdown */}
                 <Menu as="div" className="ml-3 relative">
                   <div>
@@ -134,59 +188,37 @@ export default function Navbar() {
                       />
                     </Menu.Button>
                   </div>
-                  <Transition
-                    as={Fragment}
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95"
-                  >
+                  
                     <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
-                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                          >
-                            Meu perfil
-                          </a>
+                           <div className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}>
+                            <Link href="/collection">
+                              Minha coleção
+                            </Link>
+                          </div>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="/collection"
-                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                          >
-                            Minha coleção
-                          </a>
+                          <div className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}>
+                            <Link href="/minted">
+                              Meus DKMTs
+                            </Link>
+                          </div>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="/minted"
-                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                          >
-                            Meus DKMTs
-                          </a>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a
-                            href="#"
-                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                          >
-                            Sair
-                          </a>
+                          <div className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}>
+                            <a href="/">Sair</a>
+                          </div>
                         )}
                       </Menu.Item>
                     </Menu.Items>
-                  </Transition>
+                 
                 </Menu>
+                </div>
               </div>
             </div>
           </div>
